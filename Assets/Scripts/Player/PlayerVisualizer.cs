@@ -1,24 +1,21 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [RequireComponent(typeof(Animator))]
-[RequireComponent(typeof(Rotator))]
 public class PlayerVisualizer : MonoBehaviour
 {
     private const string IsRunning = "IsRunning";
     private const string IsJumping = "IsJumping";
     private const string IsFalling = "IsFalling";
+    private const string IsHitting = "IsHitting";
 
     [SerializeField] private Player _player;
     [SerializeField] private Rotator _rotator;
 
     private Animator _animator;
-    private bool _false = false;
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _rotator = GetComponent<Rotator>();
     }
 
     public void SwitchAnimationRun(bool isRunning)
@@ -36,11 +33,18 @@ public class PlayerVisualizer : MonoBehaviour
         _animator.SetBool(IsFalling, isFalling);
     }
 
+    public void SwitchAnimationHit()
+    {
+        //ResetAnimation();
+
+        _animator.SetTrigger(IsHitting);
+    }
+
     public void ResetAnimation()
     {
-        SwitchAnimationRun(_false);
-        SwitchAnimationJump(_false);
-        SwitchAnimationFall(_false);
+        SwitchAnimationRun(false);
+        SwitchAnimationJump(false);
+        SwitchAnimationFall(false);
     }
 
     public void GoLeft()
@@ -51,5 +55,10 @@ public class PlayerVisualizer : MonoBehaviour
     public void GoRight()
     {
         _rotator.Rotate(false);
+    }
+
+    public AnimatorStateInfo GetAnimatorStateInfo()
+    {
+        return _animator.GetCurrentAnimatorStateInfo(0);
     }
 }

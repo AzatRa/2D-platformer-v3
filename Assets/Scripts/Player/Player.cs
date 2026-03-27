@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using static UnityEngine.ParticleSystem;
 
 public class Player : MonoBehaviour
 {
@@ -8,6 +10,10 @@ public class Player : MonoBehaviour
     [SerializeField] private GroundDetector _groundDetector;
     [SerializeField] private PlayerVisualizer _visualizer;
     [SerializeField] private Inventory _inventory;
+    [SerializeField] private Health _health;
+    [SerializeField] private Attacker _attacker;
+    [SerializeField] private Damager _damager;
+    [SerializeField] private Particler _particler;
     [SerializeField] private float _coyoteTime = 0.15f;
 
     private bool _isRunning = false;
@@ -21,6 +27,10 @@ public class Player : MonoBehaviour
     {
         _inputReader.OnJump += OnJump;
         _inputReader.OnJumpRelease += OnJumpRelease;
+        _inputReader.OnAttack += OnAttack;
+        _inputReader.OnAttackRelease += OnAttackRelease;
+        _health.OnChange += OnHealthChange;
+        _health.OnDied += OnDied;
     }
 
     private void FixedUpdate()
@@ -57,18 +67,23 @@ public class Player : MonoBehaviour
                 _isRunning = true;
                 _visualizer.SwitchAnimationRun(_isRunning);
             }
-
-            if (_moveDirection == Vector2.left)
-                _visualizer.GoLeft();
-            else
-                _visualizer.GoRight();
         }
+
+        if (_moveDirection == Vector2.left)
+            _visualizer.GoLeft();
+
+        if (_moveDirection == Vector2.right)
+            _visualizer.GoRight();
     }
 
     private void OnDestroy()
     {
         _inputReader.OnJump -= OnJump;
         _inputReader.OnJumpRelease -= OnJumpRelease;
+        _inputReader.OnAttack -= OnAttack;
+        _inputReader.OnAttackRelease -= OnAttackRelease;
+        _health.OnChange -= OnHealthChange;
+        _health.OnDied -= OnDied;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -99,5 +114,46 @@ public class Player : MonoBehaviour
         _isFalling = false;
 
         _visualizer.ResetAnimation();
+    }
+
+    private void OnAttack()
+    {
+        _attacker.Go();
+        _particler.EnableAttack();
+    }
+
+    private void OnAttackRelease()
+    {
+        _attacker.Stop();
+        _particler.DisableAttack();
+    }
+
+    private void OnGetDamage()
+    {
+        _visualizer.SwitchAnimationHit();
+    }
+
+    private void OnHealthChange(int health, int amount)
+    {
+        if (amount < 0)
+        {
+            OnGetDamage();
+        }
+
+        if (amount > 0)
+        {
+            _particler.Regeneration();
+        }
+    }
+
+    private void OnDied()
+    {
+        StartCoroutine(GameOver());
+    }
+
+    private IEnumerator GameOver()
+    {
+        yield return new WaitForSecondsRealtime(_visualizer.GetAnimatorStateInfo().length);
+        Destroy(gameObject);
     }
 }
