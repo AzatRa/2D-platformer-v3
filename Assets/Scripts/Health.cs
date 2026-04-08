@@ -8,12 +8,13 @@ public class Health : MonoBehaviour
     [SerializeField] private float _timeForRegeneration = 5f;
     [SerializeField] private int _regenerationValue = 2;
 
-    public event Action<int, int> OnChange;
+    public event Action<int, int> OnChanged;
     public event Action OnDied;
 
     private int _minHealth = 0;
     private float _timer;
     private bool _isTimerStarted;
+    private bool _isDied = false;
 
     private void Start()
     {
@@ -31,15 +32,36 @@ public class Health : MonoBehaviour
             _timer += Time.deltaTime;
             Regeneration();
         }
+
+        if (_health == _minHealth && !_isDied)
+        {
+            _isDied = true;
+            Die();
+        }
     }
 
-    public void Change(int amount)
+    public void TakeDamage(int damage)
     {
-        _health += amount;
-        OnChange?.Invoke(_health, amount);
+        if (damage < 0)
+            return;
 
-        if (_health <= _minHealth)
-            Die();
+        Change(-damage);
+    }
+
+    public void Heal(int heal)
+    {
+        if (heal < 0)
+            return;
+
+        Change(heal);
+    }
+
+    private void Change(int amount)
+    {
+        int oldHealth = _health;
+        _health = Mathf.Clamp(_health + amount, _minHealth, _maxHealth);
+        int currentChange = _health - oldHealth;
+        OnChanged?.Invoke(_health, currentChange);
     }
 
     private void Regeneration()

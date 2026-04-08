@@ -35,8 +35,6 @@ public class PlayerVisualizer : MonoBehaviour
 
     public void SwitchAnimationHit()
     {
-        //ResetAnimation();
-
         _animator.SetTrigger(IsHitting);
     }
 

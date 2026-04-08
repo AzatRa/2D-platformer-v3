@@ -10,7 +10,6 @@ public class PlayerDetector : MonoBehaviour
     [SerializeField] private int _rayCount = 5;
 
     public event Action<Vector2> OnDetect;
-    //public event Action OnLosed;
 
     private Collider2D _collider;
     private LayerMask _playerMask;

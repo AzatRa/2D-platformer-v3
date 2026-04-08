@@ -8,6 +8,7 @@ public class Mover : MonoBehaviour
 
     public float MoveSpeed => _moveSpeed;
     public Vector2 MoveDirection => _currentMoveDirection;
+    public Vector2 RigidbodyVelocity => _rigidbody.linearVelocity;
 
     private Rigidbody2D _rigidbody;
     private Vector2 _currentMoveDirection;
@@ -30,10 +31,5 @@ public class Mover : MonoBehaviour
         velocity.x = vector.x * speed;
 
         _rigidbody.linearVelocity = velocity;
-    }
-
-    public Vector2 GetRigidbodyVelocity()
-    {
-        return _rigidbody.linearVelocity;
     }
 }

@@ -32,11 +32,11 @@ public class ChickenAI : MonoBehaviour
 
     private void Start()
     {
-        _health.OnChange += OnHealthChange;
+        _health.OnChanged += OnHealthChanged;
         _health.OnDied += OnDied;
         _playerDetector.OnDetect += OnPlayerDetect;
-        _attacker.OnAttack += Attack;
-        _attacker.OnAttackRelease += AttackStop;
+        _attacker.OnAttack += OnAttackStart;
+        _attacker.OnAttackRelease += OnAttackStop;
         _mover.GoLeft += GoLeft;
         _mover.GoRight += GoRight;
     }
@@ -64,7 +64,7 @@ public class ChickenAI : MonoBehaviour
                 break;
 
             case State.Attack:
-                Attack();
+                ResetRun();
                 break;
         }
 
@@ -73,10 +73,11 @@ public class ChickenAI : MonoBehaviour
 
     private void OnDestroy()
     {
-        _health.OnChange -= OnHealthChange;
+        _health.OnChanged -= OnHealthChanged;
         _health.OnDied -= OnDied;
         _playerDetector.OnDetect -= OnPlayerDetect;
-        _attacker.OnAttack -= Attack;
+        _attacker.OnAttack -= OnAttackStart;
+        _attacker.OnAttackRelease += OnAttackStop;
         _mover.GoLeft -= GoLeft;
         _mover.GoRight -= GoRight;
     }
@@ -140,33 +141,34 @@ public class ChickenAI : MonoBehaviour
     {
         _visualizer.GoLeft();
         _playerDetector.GoLeft();
+        _groundDetector.SetDirection(false);
     }
 
     private void GoRight()
     {
         _visualizer.GoRight();
         _playerDetector.GoRight();
+        _groundDetector.SetDirection(true);
     }
 
     private void OnPlayerDetect(Vector2 playerPosition)
     {
         if (!_isAttacking)
         {
-            _attacker.Go();
+            _attacker.Enable();
             _state = State.Attack;
         }
 
         _runTargetPosition = playerPosition;
     }
 
-    private void Attack()
+    private void OnAttackStart()
     {
         _isAttacking = true;
         _particler.EnableAttack();
-        ResetRun();
     }
 
-    private void AttackStop()
+    private void OnAttackStop()
     {
         _isAttacking = false;
         _particler.DisableAttack();
@@ -174,7 +176,7 @@ public class ChickenAI : MonoBehaviour
         _timer = 0;
     }
 
-    private void OnHealthChange(int health, int amount)
+    private void OnHealthChanged(int health, int amount)
     {
         if (amount < 0)
         {

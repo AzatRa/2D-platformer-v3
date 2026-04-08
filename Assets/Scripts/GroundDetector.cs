@@ -1,68 +1,69 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
 public class GroundDetector : MonoBehaviour
 {
     private const string Ground = "Ground";
 
-    [SerializeField] private float _rayDistance = 0.1f;
-    [SerializeField] private int _rayCount = 5;
+    [SerializeField] private Transform _groundCheck;
+    [SerializeField] private Transform _edgeCheck;
+    [SerializeField] private float _radius = 0.2f;
+    [SerializeField] private bool _facingRight = true;
 
     public bool IsGround { get; private set; }
     public bool IsEdge { get; private set; }
 
-    private Collider2D _collider;
     private LayerMask _groundMask;
+    private Vector2 _edgeCheckPosition;
 
     private void Awake()
     {
-        _collider = GetComponent<Collider2D>();
         _groundMask = LayerMask.GetMask(Ground);
     }
 
     private void FixedUpdate()
     {
-        IsGround = CheckGround();
-        IsEdge = CheckEdge();
+        CheckGround();
+        CheckEdge();
     }
 
-    private bool CheckGround()
+    public void SetDirection(bool facingRight)
     {
-        if (Calculate() > 0)
-            return true;
-        else
-            return false;
+        _facingRight = facingRight;
     }
 
-    private bool CheckEdge()
+    private void CheckGround()
     {
-        if (Calculate() != _rayCount)
-            return true;
-        else
-            return false;
+        IsGround = Physics2D.OverlapCircle(_groundCheck.position, _radius, _groundMask);
     }
 
-    private int Calculate()
+    private void CheckEdge()
     {
-        int value = 0;
-        Bounds bounds = _collider.bounds;
+        Vector2 direction;
 
-        float minX = bounds.min.x;
-        float maxX = bounds.max.x;
-        float minY = bounds.min.y;
-
-        float rayStep = (maxX - minX) / (_rayCount - 1);
-
-        for (int i = 0; i < _rayCount; i++)
+        if (_facingRight)
         {
-            Vector2 rayVectorPosition = new Vector2(minX + rayStep * i, minY);
-            RaycastHit2D hit = Physics2D.Raycast(rayVectorPosition, Vector2.down, _rayDistance, _groundMask);
-            Debug.DrawRay(rayVectorPosition, Vector2.down * _rayDistance, Color.red);
-
-            if (hit.collider != null)
-                value++;
+            direction = Vector2.right;
         }
+        else
+        {
+            direction = Vector2.left;
+        }
+        
+        _edgeCheckPosition = (Vector2)_groundCheck.position + direction * Mathf.Abs(_edgeCheck.localPosition.x);
+        bool hasGroundAhead = Physics2D.OverlapCircle(_edgeCheckPosition, _radius, _groundMask);
 
-        return value;
+        IsEdge = IsGround && !hasGroundAhead;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (_groundCheck == null)
+            return;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(_groundCheck.position, _radius);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(_edgeCheckPosition, _radius);
     }
 }

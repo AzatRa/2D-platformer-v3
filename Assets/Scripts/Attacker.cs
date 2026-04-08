@@ -13,12 +13,19 @@ public class Attacker : MonoBehaviour
     private float _cooldownTimer;
     private bool _isAttacking = false;
 
+    private void Awake()
+    {
+        _cooldownTimer = _cooldownTime;
+    }
+
     private void Update()
     {
         if (_isAttacking)
         {
             _timer += Time.deltaTime;
-            GetDamage();
+
+            if (_timer >= _timeForAttack)
+                Disable();
         }
         else
         {
@@ -26,27 +33,25 @@ public class Attacker : MonoBehaviour
         }
     }
 
-    public void Go()
+    public void Enable()
     {
-        _isAttacking = true;
+        if (_cooldownTimer < _cooldownTime || _isAttacking)
+            return;
+
+        StartAttack();
     }
 
-    public void Stop()
+    public void Disable()
     {
         OnAttackRelease?.Invoke();
         _isAttacking = false;
-        _timer = 0;
+        _cooldownTimer = 0;
     }
 
-    private void GetDamage()
+    private void StartAttack()
     {
-        if (_timer < _timeForAttack && _cooldownTimer >= _cooldownTime)
-        {
-            OnAttack?.Invoke();
-        }
-        else
-        {
-            Stop();
-        }
+        _isAttacking = true;
+        _timer = 0;
+        OnAttack?.Invoke();
     }
 }

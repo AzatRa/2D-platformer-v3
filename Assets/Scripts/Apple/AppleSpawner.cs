@@ -34,13 +34,13 @@ public class AppleSpawner : MonoBehaviour
             Apple apple = Get();
             apple.transform.position = spawnPoint.position;
             apple.gameObject.SetActive(true);
-            apple.CollidedWithPlayer += OnPlayerCollision;
+            apple.OnCollected += OnCollected;
         }
     }
 
-    private void OnPlayerCollision(Apple apple)
+    private void OnCollected(Apple apple)
     {
-        apple.CollidedWithPlayer -= OnPlayerCollision;
+        apple.OnCollected -= OnCollected;
         Release(apple);
     }
 

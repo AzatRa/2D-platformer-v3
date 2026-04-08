@@ -5,18 +5,12 @@ public class Apple : MonoBehaviour
 {
     [SerializeField] private int _healing = 10;
 
-    public event Action<Apple> CollidedWithPlayer;
+    public event Action<Apple> OnCollected;
 
-    private void OnTriggerEnter2D(UnityEngine.Collider2D collision)
+    public int Healing => _healing;
+
+    public void Collect()
     {
-        if (collision.gameObject.TryGetComponent<Player>(out _))
-        {
-            CollidedWithPlayer?.Invoke(this);
-        }
-
-        if (collision.gameObject.TryGetComponent<Health>(out var health))
-        {
-            health.Change(_healing);
-        }
+        OnCollected?.Invoke(this);
     }
 }

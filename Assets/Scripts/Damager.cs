@@ -3,10 +3,15 @@ using UnityEngine;
 
 public class Damager : MonoBehaviour
 {
-    [SerializeField] private int _damage = -100;
+    [SerializeField] private int _damage = 100;
     [SerializeField] private Attacker _attacker;
+    [SerializeField] private Transform _attackPoint;
+    [SerializeField] private float _attackRadius = 0.15f;
+    [SerializeField] private LayerMask _targetLayer;
 
-    private bool _isAttacking = false;
+    public event Action OnTakedDamage;
+
+    private bool _isActive = false;
 
     private void Start()
     {
@@ -19,24 +24,42 @@ public class Damager : MonoBehaviour
         _attacker.OnAttackRelease -= OnAttackRelease;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void Update()
     {
-        if (_isAttacking)
+        if (_isActive)
         {
-            if (collision.TryGetComponent<Health>(out var health))
+            TakeDamage();
+        }
+    }
+
+    private void TakeDamage()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(_attackPoint.position, _attackRadius, _targetLayer);
+
+        foreach (var hit in hits)
+        {
+            if (hit.TryGetComponent<Health>(out var health))
             {
-                health.Change(_damage);
+                health.TakeDamage(_damage);
+                OnTakedDamage?.Invoke();
+                _isActive = false;
             }
         }
     }
 
     private void OnAttack()
     {
-        _isAttacking = true;
+        _isActive = true;
     }
 
     private void OnAttackRelease()
     {
-        _isAttacking = false;
+        _isActive = false;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.orange;
+        Gizmos.DrawWireSphere(_attackPoint.position, _attackRadius);
     }
 }

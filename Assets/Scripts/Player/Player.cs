@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.ParticleSystem;
 
 public class Player : MonoBehaviour
 {
@@ -9,7 +8,6 @@ public class Player : MonoBehaviour
     [SerializeField] private Jumper _jumper;
     [SerializeField] private GroundDetector _groundDetector;
     [SerializeField] private PlayerVisualizer _visualizer;
-    [SerializeField] private Inventory _inventory;
     [SerializeField] private Health _health;
     [SerializeField] private Attacker _attacker;
     [SerializeField] private Damager _damager;
@@ -29,8 +27,10 @@ public class Player : MonoBehaviour
         _inputReader.OnJumpRelease += OnJumpRelease;
         _inputReader.OnAttack += OnAttack;
         _inputReader.OnAttackRelease += OnAttackRelease;
-        _health.OnChange += OnHealthChange;
+        _health.OnChanged += OnHealthChanged;
         _health.OnDied += OnDied;
+        _attacker.OnAttack += OnAttackStart;
+        _damager.OnTakedDamage += OnAttackRelease;
     }
 
     private void FixedUpdate()
@@ -48,7 +48,7 @@ public class Player : MonoBehaviour
 
         if (!_groundDetector.IsGround)
         {
-            if (_mover.GetRigidbodyVelocity().y > 0)
+            if (_mover.RigidbodyVelocity.y > 0)
             {
                 _isJumping = true;
                 _visualizer.SwitchAnimationJump(_isJumping);
@@ -69,10 +69,10 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (_moveDirection == Vector2.left)
+        if (_moveDirection.x < 0)
             _visualizer.GoLeft();
 
-        if (_moveDirection == Vector2.right)
+        if (_moveDirection.x > 0)
             _visualizer.GoRight();
     }
 
@@ -82,16 +82,10 @@ public class Player : MonoBehaviour
         _inputReader.OnJumpRelease -= OnJumpRelease;
         _inputReader.OnAttack -= OnAttack;
         _inputReader.OnAttackRelease -= OnAttackRelease;
-        _health.OnChange -= OnHealthChange;
+        _health.OnChanged -= OnHealthChanged;
         _health.OnDied -= OnDied;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.TryGetComponent<Apple>(out var apple))
-        {
-            _inventory.Take(apple);
-        }
+        _attacker.OnAttack -= OnAttackStart;
+        _damager.OnTakedDamage -= OnAttackRelease;
     }
 
     private void OnJump()
@@ -118,26 +112,25 @@ public class Player : MonoBehaviour
 
     private void OnAttack()
     {
-        _attacker.Go();
-        _particler.EnableAttack();
+        _attacker.Enable();
     }
 
     private void OnAttackRelease()
     {
-        _attacker.Stop();
+        _attacker.Disable();
         _particler.DisableAttack();
     }
 
-    private void OnGetDamage()
+    private void OnAttackStart()
     {
-        _visualizer.SwitchAnimationHit();
+        _particler.EnableAttack();
     }
 
-    private void OnHealthChange(int health, int amount)
+    private void OnHealthChanged(int health, int amount)
     {
         if (amount < 0)
         {
-            OnGetDamage();
+            _visualizer.SwitchAnimationHit();
         }
 
         if (amount > 0)
