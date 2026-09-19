@@ -8,12 +8,12 @@ public class InputReader : MonoBehaviour
     [SerializeField] private InputAction _jumpInputs;
     [SerializeField] private InputAction _attackInputs;
 
+    private Vector2 _moveDirection;
+
     public event Action OnJump;
     public event Action OnJumpRelease;
     public event Action OnAttack;
     public event Action OnAttackRelease;
-
-    private Vector2 _moveDirection;
 
     private void OnEnable()
     {

@@ -10,7 +10,6 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerVisualizer _visualizer;
     [SerializeField] private Health _health;
     [SerializeField] private Attacker _attacker;
-    [SerializeField] private Damager _damager;
     [SerializeField] private Particler _particler;
     [SerializeField] private float _coyoteTime = 0.15f;
 
@@ -26,11 +25,9 @@ public class Player : MonoBehaviour
         _inputReader.OnJump += OnJump;
         _inputReader.OnJumpRelease += OnJumpRelease;
         _inputReader.OnAttack += OnAttack;
-        _inputReader.OnAttackRelease += OnAttackRelease;
-        _health.OnChanged += OnHealthChanged;
-        _health.OnDied += OnDied;
-        _attacker.OnAttack += OnAttackStart;
-        _damager.OnTakedDamage += OnAttackRelease;
+        _health.Changed += OnHealthChanged;
+        _health.Died += OnDied;
+        _attacker.Attacked += OnAttacked;
     }
 
     private void FixedUpdate()
@@ -81,11 +78,9 @@ public class Player : MonoBehaviour
         _inputReader.OnJump -= OnJump;
         _inputReader.OnJumpRelease -= OnJumpRelease;
         _inputReader.OnAttack -= OnAttack;
-        _inputReader.OnAttackRelease -= OnAttackRelease;
-        _health.OnChanged -= OnHealthChanged;
-        _health.OnDied -= OnDied;
-        _attacker.OnAttack -= OnAttackStart;
-        _damager.OnTakedDamage -= OnAttackRelease;
+        _health.Changed -= OnHealthChanged;
+        _health.Died -= OnDied;
+        _attacker.Attacked -= OnAttacked;
     }
 
     private void OnJump()
@@ -112,18 +107,13 @@ public class Player : MonoBehaviour
 
     private void OnAttack()
     {
-        _attacker.Enable();
+        _attacker.Attack();
     }
 
-    private void OnAttackRelease()
+    private void OnAttacked()
     {
-        _attacker.Disable();
-        _particler.DisableAttack();
-    }
-
-    private void OnAttackStart()
-    {
-        _particler.EnableAttack();
+        _particler.Attack();
+        _visualizer.SwitchAnimationAttack();
     }
 
     private void OnHealthChanged(int health, int amount)

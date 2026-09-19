@@ -7,13 +7,13 @@ public class ChickenMover : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 8f;
 
-    public event Action GoLeft;
-    public event Action GoRight;
-
     private Rigidbody2D _rigidbody;
     private Vector2 _targetPosition;
     private float _minDistance = 0.1f;
     private float _minSpeed = 0.01f;
+
+    public event Action GoLeft;
+    public event Action GoRight;
 
     private void Awake()
     {

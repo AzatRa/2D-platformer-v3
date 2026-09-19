@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
@@ -9,11 +11,13 @@ public class PlayerDetector : MonoBehaviour
     [SerializeField] private float _rayDistance = 10f;
     [SerializeField] private int _rayCount = 5;
 
-    public event Action<Vector2> OnDetect;
+    public event Action<Vector2> Detected;
+    public event Action Losted;
 
     private Collider2D _collider;
     private LayerMask _playerMask;
     private Vector2 _direction;
+    private bool _isPlayerDetected;
 
     private void Awake()
     {
@@ -31,6 +35,9 @@ public class PlayerDetector : MonoBehaviour
 
         float rayStep = (maxY - minY) / (_rayCount - 1);
 
+        bool playerDetected = false;
+        Vector2 playerPosition = Vector2.zero;
+
         for (int i = 0; i < _rayCount; i++)
         {
             Vector2 rayVectorPosition = new Vector2(centerX, minY + rayStep * i);
@@ -38,7 +45,22 @@ public class PlayerDetector : MonoBehaviour
             Debug.DrawRay(rayVectorPosition, _direction * _rayDistance, Color.red);
 
             if (hit.collider != null)
-                OnDetect?.Invoke(hit.point);
+            {
+                playerDetected = true;
+                playerPosition = hit.point;
+                break;
+            }
+        }
+
+        if (playerDetected)
+        {
+            _isPlayerDetected = true;
+            Detected?.Invoke(playerPosition);
+        }
+        else if (_isPlayerDetected)
+        {
+            _isPlayerDetected = false;
+            Losted?.Invoke();
         }
     }
 

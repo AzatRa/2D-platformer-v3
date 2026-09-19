@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 6336633507187146767}
   - component: {fileID: 954132403199018679}
   - component: {fileID: 1714095801261879774}
-  - component: {fileID: 5370532599820899829}
+  - component: {fileID: 8799526596185407208}
   m_Layer: 9
   m_Name: Chicken
   m_TagString: Untagged
@@ -126,6 +126,7 @@ MonoBehaviour:
   _startingState: 0
   _maxRunTimer: 2
   _maxIdleTimer: 3
+  _attackCooldown: 0.5
   _groundDetector: {fileID: 479740763656604287}
   _visualizer: {fileID: 6077400192035383709}
   _patrol: {fileID: 2367196957389336415}
@@ -237,9 +238,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1280536e371d2e4aa7c09b011ec0204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Attacker
-  _timeForAttack: 3
-  _cooldownTime: 1
---- !u!114 &5370532599820899829
+  _damage: 100
+  _attackPoint: {fileID: 6132610339830621681}
+  _attackRadius: 0.15
+  _targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
+--- !u!114 &8799526596185407208
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -248,16 +253,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1223164781201123960}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a43746cbff0a4d4f80807bf191d3d23, type: 3}
+  m_Script: {fileID: 11500000, guid: e07ca20210ae78a4da1a394359252295, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Damager
-  _damage: 50
-  _attacker: {fileID: 1714095801261879774}
-  _attackPoint: {fileID: 6132610339830621681}
-  _attackRadius: 0.15
-  _targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
+  m_EditorClassIdentifier: Assembly-CSharp::Rotator
 --- !u!1 &2607860211446425867
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,7 +394,6 @@ GameObject:
   - component: {fileID: 6843727392499983109}
   - component: {fileID: 2196314769692393112}
   - component: {fileID: 7994526222977765294}
-  - component: {fileID: 9012897231761575619}
   - component: {fileID: 6077400192035383709}
   m_Layer: 9
   m_Name: Visual
@@ -501,18 +498,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &9012897231761575619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4851113159009493648}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e07ca20210ae78a4da1a394359252295, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Rotator
 --- !u!114 &6077400192035383709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,7 +510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12357e5ad2dc18646979020378b23a1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChickenVisualizer
-  _rotator: {fileID: 9012897231761575619}
+  _rotator: {fileID: 8799526596185407208}
 --- !u!1 &7307240798789160619
 GameObject:
   m_ObjectHideFlags: 0
@@ -10355,7 +10340,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9187160074012900798}
   serializedVersion: 8
-  lengthInSec: 0.05
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -10430,7 +10415,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.05
+      scalar: 0.4
       minScalar: 5
       maxCurve:
         serializedVersion: 2

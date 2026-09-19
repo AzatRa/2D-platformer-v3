@@ -11,7 +11,6 @@ public class Particler : MonoBehaviour
     [SerializeField] private float _dustFormationPeriod = 0.2f;
 
     private float _counter;
-    private bool _isAttack = false;
     private bool _isRegeneration = false;
 
     private Rigidbody2D _rigidbody;
@@ -23,11 +22,6 @@ public class Particler : MonoBehaviour
 
     private void Update()
     {
-        if (_isAttack)
-        {
-            _attackParticle.Play();
-        }
-
         if (_isRegeneration)
         {
             _regenerationParticle.Play();
@@ -46,14 +40,9 @@ public class Particler : MonoBehaviour
         }
     }
 
-    public void EnableAttack()
+    public void Attack()
     {
-        _isAttack = true;
-    }
-
-    public void DisableAttack()
-    {
-        _isAttack = false;
+        _attackParticle.Play();
     }
 
     public void Regeneration()

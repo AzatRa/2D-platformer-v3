@@ -3,55 +3,39 @@ using UnityEngine;
 
 public class Attacker : MonoBehaviour
 {
-    [SerializeField] private float _timeForAttack = 2f;
-    [SerializeField] private float _cooldownTime = 2f;
-    
-    public event Action OnAttack;
-    public event Action OnAttackRelease;
+    [SerializeField] private int _damage = 100;
+    [SerializeField] private Transform _attackPoint;
+    [SerializeField] private float _attackRadius = 0.15f;
+    [SerializeField] private LayerMask _targetLayer;
 
-    private float _timer;
-    private float _cooldownTimer;
-    private bool _isAttacking = false;
+    public event Action Attacked;
 
-    private void Awake()
+    public void Attack()
     {
-        _cooldownTimer = _cooldownTime;
+        Attacked?.Invoke();
+        TakeDamage();
     }
 
-    private void Update()
+    private void TakeDamage()
     {
-        if (_isAttacking)
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            _attackPoint.position,
+            _attackRadius,
+            _targetLayer
+        );
+
+        foreach (var hit in hits)
         {
-            _timer += Time.deltaTime;
-
-            if (_timer >= _timeForAttack)
-                Disable();
-        }
-        else
-        {
-            _cooldownTimer += Time.deltaTime;
+            if (hit.TryGetComponent<Health>(out Health health))
+            {
+                health.TakeDamage(_damage);
+            }
         }
     }
 
-    public void Enable()
+    private void OnDrawGizmosSelected()
     {
-        if (_cooldownTimer < _cooldownTime || _isAttacking)
-            return;
-
-        StartAttack();
-    }
-
-    public void Disable()
-    {
-        OnAttackRelease?.Invoke();
-        _isAttacking = false;
-        _cooldownTimer = 0;
-    }
-
-    private void StartAttack()
-    {
-        _isAttacking = true;
-        _timer = 0;
-        OnAttack?.Invoke();
+        Gizmos.color = Color.orange;
+        Gizmos.DrawWireSphere(_attackPoint.position, _attackRadius);
     }
 }

@@ -7,6 +7,7 @@ public class PlayerVisualizer : MonoBehaviour
     private const string IsJumping = "IsJumping";
     private const string IsFalling = "IsFalling";
     private const string IsHitting = "IsHitting";
+    private const string IsAttacking = "IsAttacking";
 
     [SerializeField] private Player _player;
     [SerializeField] private Rotator _rotator;
@@ -36,6 +37,11 @@ public class PlayerVisualizer : MonoBehaviour
     public void SwitchAnimationHit()
     {
         _animator.SetTrigger(IsHitting);
+    }
+
+    public void SwitchAnimationAttack()
+    {
+        _animator.SetTrigger(IsAttacking);
     }
 
     public void ResetAnimation()

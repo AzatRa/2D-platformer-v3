@@ -1,13 +1,12 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.ParticleSystem;
 
 public class ChickenAI : MonoBehaviour
 {
     [SerializeField] private State _startingState;
     [SerializeField] private float _maxRunTimer = 2f;
     [SerializeField] private float _maxIdleTimer = 3f;
+    [SerializeField] private float _attackCooldown = 0.5f;
     [SerializeField] private GroundDetector _groundDetector;
     [SerializeField] private ChickenVisualizer _visualizer;
     [SerializeField] private ChickenPatrol _patrol;
@@ -23,7 +22,7 @@ public class ChickenAI : MonoBehaviour
     private bool _hasTarget = false;
     private bool _isRunning = false;
     private bool _isDirectionChanging = false;
-    private bool _isAttacking = false;
+    private Coroutine _attackCoroutine;
 
     private void Awake()
     {
@@ -32,11 +31,11 @@ public class ChickenAI : MonoBehaviour
 
     private void Start()
     {
-        _health.OnChanged += OnHealthChanged;
-        _health.OnDied += OnDied;
-        _playerDetector.OnDetect += OnPlayerDetect;
-        _attacker.OnAttack += OnAttackStart;
-        _attacker.OnAttackRelease += OnAttackStop;
+        _health.Changed += OnHealthChanged;
+        _health.Died += OnDied;
+        _playerDetector.Detected += OnPlayerDetect;
+        _playerDetector.Losted += OnPlayerLost;
+        _attacker.Attacked += OnAttacked;
         _mover.GoLeft += GoLeft;
         _mover.GoRight += GoRight;
     }
@@ -73,11 +72,11 @@ public class ChickenAI : MonoBehaviour
 
     private void OnDestroy()
     {
-        _health.OnChanged -= OnHealthChanged;
-        _health.OnDied -= OnDied;
-        _playerDetector.OnDetect -= OnPlayerDetect;
-        _attacker.OnAttack -= OnAttackStart;
-        _attacker.OnAttackRelease += OnAttackStop;
+        _health.Changed -= OnHealthChanged;
+        _health.Died -= OnDied;
+        _playerDetector.Detected -= OnPlayerDetect;
+        _playerDetector.Losted -= OnPlayerLost;
+        _attacker.Attacked -= OnAttacked;
         _mover.GoLeft -= GoLeft;
         _mover.GoRight -= GoRight;
     }
@@ -92,7 +91,7 @@ public class ChickenAI : MonoBehaviour
             _isDirectionChanging = false;
         }
 
-        if (!_isAttacking && _timer >= _maxRunTimer)
+        if (_timer >= _maxRunTimer)
         {
             _mover.SetTargetPosition(transform.position);
             _state = State.Idle;
@@ -100,7 +99,7 @@ public class ChickenAI : MonoBehaviour
             _hasTarget = false;
         }
 
-        if (!_isAttacking && _groundDetector.IsEdge && !_isDirectionChanging)
+        if (_groundDetector.IsEdge && !_isDirectionChanging)
         {
             _runTargetPosition = _patrol.ChangeDirection();
             _isDirectionChanging = true;
@@ -153,45 +152,53 @@ public class ChickenAI : MonoBehaviour
 
     private void OnPlayerDetect(Vector2 playerPosition)
     {
-        if (!_isAttacking)
+        _runTargetPosition = playerPosition;
+
+        if (_attackCoroutine == null)
         {
-            _attacker.Enable();
             _state = State.Attack;
+            _attackCoroutine = StartCoroutine(AttackCoroutine());
+        }
+    }
+
+    private void OnPlayerLost()
+    {
+        if (_attackCoroutine != null)
+        {
+            StopCoroutine(_attackCoroutine);
+            _attackCoroutine = null;
         }
 
-        _runTargetPosition = playerPosition;
-    }
-
-    private void OnAttackStart()
-    {
-        _isAttacking = true;
-        _particler.EnableAttack();
-    }
-
-    private void OnAttackStop()
-    {
-        _isAttacking = false;
-        _particler.DisableAttack();
         _state = State.Idle;
         _timer = 0;
+    }
+
+    private IEnumerator AttackCoroutine()
+    {
+        while (true)
+        {
+            _attacker.Attack();
+
+            yield return new WaitForSeconds(_attackCooldown);
+        }
+    }
+
+    private void OnAttacked()
+    {
+        _particler.Attack();
     }
 
     private void OnHealthChanged(int health, int amount)
     {
         if (amount < 0)
         {
-            OnGetDamage();
+            _visualizer.SwitchAnimationHit();
         }
 
         if (amount > 0)
         {
             _particler.Regeneration();
         }
-    }
-
-    private void OnGetDamage()
-    {
-        _visualizer.SwitchAnimationHit();
     }
 
     private void OnDied()
