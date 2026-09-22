@@ -1,18 +1,18 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class AppleSpawner : MonoBehaviour
+public class StrawberrySpawner : MonoBehaviour
 {
-    [SerializeField] private Apple _prefab;
+    [SerializeField] private Strawberry _prefab;
     [SerializeField] private Transform[] _spawnPoints;
     [SerializeField] private int _poolCapasity = 50;
     [SerializeField] private int _poolMaxSize = 100;
 
-    private ObjectPool<Apple> _pool;
+    private ObjectPool<Strawberry> _pool;
 
     private void Awake()
     {
-        _pool = new ObjectPool<Apple>(
+        _pool = new ObjectPool<Strawberry>(
             createFunc: () => Instantiate(_prefab),
             actionOnGet: (obj) => obj.gameObject.SetActive(true),
             actionOnRelease: (obj) => obj.gameObject.SetActive(false),
@@ -31,25 +31,25 @@ public class AppleSpawner : MonoBehaviour
     {
         foreach (Transform spawnPoint in _spawnPoints)
         {
-            Apple apple = Get();
-            apple.transform.position = spawnPoint.position;
-            apple.gameObject.SetActive(true);
-            apple.Collected += OnCollected;
+            Strawberry strawberry = Get();
+            strawberry.transform.position = spawnPoint.position;
+            strawberry.gameObject.SetActive(true);
+            strawberry.Collected += Collected;
         }
     }
 
-    private void OnCollected(Apple apple)
+    private void Collected(Strawberry strawberry)
     {
-        apple.Collected -= OnCollected;
-        Release(apple);
+        strawberry.Collected -= Collected;
+        Release(strawberry);
     }
 
-    private Apple Get()
+    private Strawberry Get()
     {
         return _pool.Get();
     }
 
-    private void Release(Apple obj)
+    private void Release(Strawberry obj)
     {
         _pool.Release(obj);
     }

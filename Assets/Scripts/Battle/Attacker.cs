@@ -13,10 +13,10 @@ public class Attacker : MonoBehaviour
     public void Attack()
     {
         Attacked?.Invoke();
-        TakeDamage();
+        DealDamage();
     }
 
-    private void TakeDamage()
+    private void DealDamage()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             _attackPoint.position,

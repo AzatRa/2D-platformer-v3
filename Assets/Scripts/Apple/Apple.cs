@@ -3,14 +3,10 @@ using UnityEngine;
 
 public class Apple : MonoBehaviour
 {
-    [SerializeField] private int _healing = 10;
-
-    public event Action<Apple> OnCollected;
-
-    public int Healing => _healing;
+    public event Action<Apple> Collected;
 
     public void Collect()
     {
-        OnCollected?.Invoke(this);
+        Collected?.Invoke(this);
     }
 }

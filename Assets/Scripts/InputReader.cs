@@ -10,10 +10,10 @@ public class InputReader : MonoBehaviour
 
     private Vector2 _moveDirection;
 
-    public event Action OnJump;
-    public event Action OnJumpRelease;
-    public event Action OnAttack;
-    public event Action OnAttackRelease;
+    public event Action Jumping;
+    public event Action JumpReleased;
+    public event Action Attacking;
+    public event Action AttackReleased;
 
     private void OnEnable()
     {
@@ -27,16 +27,16 @@ public class InputReader : MonoBehaviour
         _moveDirection = _moveInputs.ReadValue<Vector2>();
 
         if (_jumpInputs.WasPressedThisFrame())
-            OnJump?.Invoke();
+            Jumping?.Invoke();
 
         if (_jumpInputs.WasReleasedThisFrame())
-            OnJumpRelease?.Invoke();
+            JumpReleased?.Invoke();
 
         if (_attackInputs.WasPressedThisFrame())
-            OnAttack?.Invoke();
+            Attacking?.Invoke();
 
         if (_attackInputs.WasReleasedThisFrame())
-            OnAttackRelease?.Invoke();
+            AttackReleased?.Invoke();
 
     }
 

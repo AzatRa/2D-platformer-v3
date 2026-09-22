@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class ChickenAI : MonoBehaviour
@@ -31,11 +32,11 @@ public class ChickenAI : MonoBehaviour
 
     private void Start()
     {
-        _health.Changed += OnHealthChanged;
-        _health.Died += OnDied;
-        _playerDetector.Detected += OnPlayerDetect;
-        _playerDetector.Losted += OnPlayerLost;
-        _attacker.Attacked += OnAttacked;
+        _health.Changed += HealthChanged;
+        _health.Died += Died;
+        _playerDetector.Detected += PlayerDetected;
+        _playerDetector.Losted += PlayerLosted;
+        _attacker.Attacked += Attacked;
         _mover.GoLeft += GoLeft;
         _mover.GoRight += GoRight;
     }
@@ -72,11 +73,11 @@ public class ChickenAI : MonoBehaviour
 
     private void OnDestroy()
     {
-        _health.Changed -= OnHealthChanged;
-        _health.Died -= OnDied;
-        _playerDetector.Detected -= OnPlayerDetect;
-        _playerDetector.Losted -= OnPlayerLost;
-        _attacker.Attacked -= OnAttacked;
+        _health.Changed -= HealthChanged;
+        _health.Died -= Died;
+        _playerDetector.Detected -= PlayerDetected;
+        _playerDetector.Losted -= PlayerLosted;
+        _attacker.Attacked -= Attacked;
         _mover.GoLeft -= GoLeft;
         _mover.GoRight -= GoRight;
     }
@@ -150,7 +151,7 @@ public class ChickenAI : MonoBehaviour
         _groundDetector.SetDirection(true);
     }
 
-    private void OnPlayerDetect(Vector2 playerPosition)
+    private void PlayerDetected(Vector2 playerPosition)
     {
         _runTargetPosition = playerPosition;
 
@@ -161,7 +162,7 @@ public class ChickenAI : MonoBehaviour
         }
     }
 
-    private void OnPlayerLost()
+    private void PlayerLosted()
     {
         if (_attackCoroutine != null)
         {
@@ -183,12 +184,12 @@ public class ChickenAI : MonoBehaviour
         }
     }
 
-    private void OnAttacked()
+    private void Attacked()
     {
         _particler.Attack();
     }
 
-    private void OnHealthChanged(int health, int amount)
+    private void HealthChanged(int health, int amount)
     {
         if (amount < 0)
         {
@@ -201,7 +202,7 @@ public class ChickenAI : MonoBehaviour
         }
     }
 
-    private void OnDied()
+    private void Died()
     {
         StartCoroutine(DestroyChicken());
     }

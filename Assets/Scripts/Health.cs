@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [SerializeField] private int _health = 90;
-    [SerializeField] private int _maxHealth = 100;
+    [SerializeField] private int _value = 90;
+    [SerializeField] private int _maxValue = 100;
     [SerializeField] private float _timeForRegeneration = 5f;
-    [SerializeField] private int _regenerationValue = 2;
+    [SerializeField] private int _regeneratingValue = 2;
 
-    private int _minHealth = 0;
+    private int _minValue = 0;
     private float _timer;
     private bool _isTimerStarted;
     private bool _isDied = false;
@@ -18,7 +18,7 @@ public class Health : MonoBehaviour
 
     private void Start()
     {
-        if (_health < _maxHealth)
+        if (_value < _maxValue)
         {
             _timer = 0;
             _isTimerStarted = true;
@@ -30,10 +30,10 @@ public class Health : MonoBehaviour
         if (_isTimerStarted)
         {
             _timer += Time.deltaTime;
-            Regeneration();
+            Regenerating();
         }
 
-        if (_health == _minHealth && !_isDied)
+        if (_value == _minValue && !_isDied)
         {
             _isDied = true;
             Die();
@@ -48,7 +48,7 @@ public class Health : MonoBehaviour
         Change(-damage);
     }
 
-    public void Heal(int heal)
+    public void TakeValue(int heal)
     {
         if (heal < 0)
             return;
@@ -58,24 +58,24 @@ public class Health : MonoBehaviour
 
     private void Change(int amount)
     {
-        int oldHealth = _health;
-        _health = Mathf.Clamp(_health + amount, _minHealth, _maxHealth);
-        int currentChange = _health - oldHealth;
-        Changed?.Invoke(_health, currentChange);
+        int oldValue = _value;
+        _value = Mathf.Clamp(_value + amount, _minValue, _maxValue);
+        int currentChange = _value - oldValue;
+        Changed?.Invoke(_value, currentChange);
     }
 
-    private void Regeneration()
+    private void Regenerating()
     {
-        if (_health < _maxHealth && _timer >= _timeForRegeneration)
+        if (_value < _maxValue && _timer >= _timeForRegeneration)
         {
-            Change(_regenerationValue);
+            Change(_regeneratingValue);
             _timer = 0;
         }
 
-        if (_health >= _maxHealth)
+        if (_value >= _maxValue)
         {
             _isTimerStarted = false;
-            _health = _maxHealth;
+            _value = _maxValue;
         }
     }
 

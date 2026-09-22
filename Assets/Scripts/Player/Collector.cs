@@ -7,9 +7,16 @@ public class Collector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (collision.TryGetComponent<Strawberry>(out var strawberry))
+        {
+            _health.TakeValue(strawberry.Healing);
+            _inventory.Take(strawberry);
+
+            strawberry.Collect();
+        }
+
         if (collision.TryGetComponent<Apple>(out var apple))
         {
-            _health.Heal(apple.Healing);
             _inventory.Take(apple);
 
             apple.Collect();

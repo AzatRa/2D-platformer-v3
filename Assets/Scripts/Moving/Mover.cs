@@ -6,13 +6,13 @@ public class Mover : MonoBehaviour
     [SerializeField] private float _moveSpeed = 8f;
     [SerializeField] private float _fallSpeed = 7f;
 
-    public float MoveSpeed => _moveSpeed;
-    public Vector2 MoveDirection => _currentMoveDirection;
-    public Vector2 RigidbodyVelocity => _rigidbody.linearVelocity;
-
     private Rigidbody2D _rigidbody;
     private Vector2 _currentMoveDirection;
 
+    public float MoveSpeed => _moveSpeed;
+    public Vector2 MoveDirection => _currentMoveDirection;
+    public Vector2 RigidbodyVelocity => _rigidbody.linearVelocity;
+    
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();

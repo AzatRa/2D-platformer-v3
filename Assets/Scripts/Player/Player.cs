@@ -13,21 +13,17 @@ public class Player : MonoBehaviour
     [SerializeField] private Particler _particler;
     [SerializeField] private float _coyoteTime = 0.15f;
 
-    private bool _isRunning = false;
-    private bool _isJumping = false;
-    private bool _isFalling = false;
-
     private Vector2 _moveDirection;
     private float _lastGroundedTime;
 
     private void Start()
     {
-        _inputReader.OnJump += OnJump;
-        _inputReader.OnJumpRelease += OnJumpRelease;
-        _inputReader.OnAttack += OnAttack;
-        _health.Changed += OnHealthChanged;
-        _health.Died += OnDied;
-        _attacker.Attacked += OnAttacked;
+        _inputReader.Jumping += Jumping;
+        _inputReader.JumpReleased += JumpReleased;
+        _inputReader.Attacking += Attacking;
+        _health.Changed += HealthChanged;
+        _health.Died += Died;
+        _attacker.Attacked += Attacked;
     }
 
     private void FixedUpdate()
@@ -41,7 +37,11 @@ public class Player : MonoBehaviour
         if (_groundDetector.IsGround)
             _lastGroundedTime = Time.time;
 
-        ResetState();
+        bool _isRunning = false;
+        bool _isJumping = false;
+        bool _isFalling = false;
+
+        _visualizer.ResetAnimation();
 
         if (!_groundDetector.IsGround)
         {
@@ -75,15 +75,15 @@ public class Player : MonoBehaviour
 
     private void OnDestroy()
     {
-        _inputReader.OnJump -= OnJump;
-        _inputReader.OnJumpRelease -= OnJumpRelease;
-        _inputReader.OnAttack -= OnAttack;
-        _health.Changed -= OnHealthChanged;
-        _health.Died -= OnDied;
-        _attacker.Attacked -= OnAttacked;
+        _inputReader.Jumping -= Jumping;
+        _inputReader.JumpReleased -= JumpReleased;
+        _inputReader.Attacking -= Attacking;
+        _health.Changed -= HealthChanged;
+        _health.Died -= Died;
+        _attacker.Attacked -= Attacked;
     }
 
-    private void OnJump()
+    private void Jumping()
     {
         if (Time.time - _lastGroundedTime <= _coyoteTime)
         {
@@ -91,32 +91,23 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnJumpRelease()
+    private void JumpReleased()
     {
         _jumper.JumpCut();
     }
 
-    private void ResetState()
-    {
-        _isRunning = false;
-        _isJumping = false;
-        _isFalling = false;
-
-        _visualizer.ResetAnimation();
-    }
-
-    private void OnAttack()
+    private void Attacking()
     {
         _attacker.Attack();
     }
 
-    private void OnAttacked()
+    private void Attacked()
     {
         _particler.Attack();
         _visualizer.SwitchAnimationAttack();
     }
 
-    private void OnHealthChanged(int health, int amount)
+    private void HealthChanged(int health, int amount)
     {
         if (amount < 0)
         {
@@ -129,7 +120,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnDied()
+    private void Died()
     {
         StartCoroutine(GameOver());
     }
